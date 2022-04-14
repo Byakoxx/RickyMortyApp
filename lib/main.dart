@@ -1,3 +1,4 @@
+import 'package:RickyMortyApp/src/pages/character_detail_page.dart';
 import 'package:RickyMortyApp/src/pages/home_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,9 +17,21 @@ class MyApp extends StatelessWidget {
       title: 'Rick & Morty',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        primarySwatch: Colors.red,
+        primarySwatch: Colors.grey,
+        scaffoldBackgroundColor: Colors.white 
       ),
       home: const HomePage(),
+      initialRoute: "Home", 
+      onGenerateRoute: (RouteSettings settings) {
+        switch (settings.name) {
+          case 'Home':
+            return CupertinoPageRoute(
+                builder: (_) => const HomePage(), settings: settings);
+          case 'CharacterDetail':
+            return CupertinoPageRoute(
+                builder: (_) => const CharacterDetailPage(), settings: settings);
+        }
+      }
     );
   }
 }
