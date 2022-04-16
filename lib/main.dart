@@ -1,10 +1,30 @@
 import 'package:RickyMortyApp/src/pages/character_detail_page.dart';
 import 'package:RickyMortyApp/src/pages/home_page.dart';
+import 'package:RickyMortyApp/src/pages/result_search_page.dart';
+import 'package:RickyMortyApp/src/providers/home_search_provider.dart';
+import 'package:RickyMortyApp/src/services/characters_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(const MyApp());
+import 'src/services/debut_service.dart';
+
+void main() => runApp(const AppState());
+
+class AppState extends StatelessWidget {
+  const AppState({Key? key}) : super(key: key);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CharacterService(), lazy: false),
+        ChangeNotifierProvider(create: (_) => HomeDataProvider(), lazy: false),
+      ],
+      child: const MyApp(),
+    );
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -30,6 +50,9 @@ class MyApp extends StatelessWidget {
           case 'CharacterDetail':
             return CupertinoPageRoute(
                 builder: (_) => const CharacterDetailPage(), settings: settings);
+          case 'ResultSearch':
+            return CupertinoPageRoute(
+                builder: (_) => const ResultSearchPage(), settings: settings);
         }
       }
     );

@@ -3,8 +3,8 @@ import 'dart:ui';
 import 'package:meta/meta.dart';
 import 'dart:convert';
 
-class CharacterModel {
-    CharacterModel({
+class SearchModel {
+    SearchModel({
         required this.info,
         required this.results,
     });
@@ -12,9 +12,9 @@ class CharacterModel {
     Info info;
     List<ResultCharacter> results;
 
-    factory CharacterModel.fromJson(String str) => CharacterModel.fromMap(json.decode(str));
+    factory SearchModel.fromJson(String str) => SearchModel.fromMap(json.decode(str));
 
-    factory CharacterModel.fromMap(Map<String, dynamic> json) => CharacterModel(
+    factory SearchModel.fromMap(Map<String, dynamic> json) => SearchModel(
         info: Info.fromMap(json["info"]),
         results: List<ResultCharacter>.from(json["results"].map((x) => ResultCharacter.fromMap(x))),
     );
@@ -91,7 +91,7 @@ class ResultCharacter {
         id: json["id"],
         name: json["name"],
         status: statusValues.map[json["status"]]!,
-        species: speciesValues.map[json["species"]]!,
+        species: speciesValues.map["Human"]!,
         type: json["type"],
         gender: genderValues.map[json["gender"]]!,
         origin: Location.fromMap(json["origin"]),
@@ -162,13 +162,13 @@ class Location {
     };
 }
 
-enum Species { HUMAN, ALIEN, UNKNOWN, HUMANOID }
+enum Species { HUMAN, UNKNOWN, ALIEN, HUMANOID }
 
 final speciesValues = EnumValues({
     "Alien": Species.ALIEN,
     "Human": Species.HUMAN,
     "unknown": Species.UNKNOWN,
-    "Humanoid": Species.HUMANOID
+    "Humanoid" : Species.HUMANOID
 });
 
 extension ParseToStringSpecies on Species {

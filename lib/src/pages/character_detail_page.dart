@@ -1,5 +1,13 @@
+import 'dart:collection';
+
+import 'package:RickyMortyApp/src/models/character_model.dart';
+import 'package:RickyMortyApp/src/providers/home_search_provider.dart';
+import 'package:RickyMortyApp/src/services/characters_service.dart';
+import 'package:RickyMortyApp/src/services/debut_service.dart';
+import 'package:RickyMortyApp/src/services/debut_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CharacterDetailPage extends StatefulWidget {
   const CharacterDetailPage({ Key? key }) : super(key: key);
@@ -11,15 +19,27 @@ class CharacterDetailPage extends StatefulWidget {
 class _CharacterDetailPageState extends State<CharacterDetailPage> {
 
   bool isFavorite = false;
-
   @override
   initState() {
     super.initState();
+
+    if(mounted) {
+      // final debutService = Provider.of<DebutService>(context, listen: false);
+      // debutService.debutUrl = 'https://rickandmortyapi.com/api/episode/19';
+
+    }
 
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final characterServices = Provider.of<CharacterService>(context);
+    final homeData = Provider.of<HomeDataProvider>(context);
+    final int idSelected = homeData.idSelected;
+   
+    ResultCharacter characterModel = characterServices.res[1][idSelected];
+
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
@@ -31,8 +51,11 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                 width: MediaQuery.of(context).size.width,
                 height: MediaQuery.of(context).size.height * 0.6,
                 child: FittedBox(
-                  child: Image.network("https://rickandmortyapi.com/api/character/avatar/40.jpeg"),
-                  fit: BoxFit.fill,
+                  child: FadeInImage.assetNetwork(
+                      placeholder: "assets/loading.gif",
+                      image: characterModel.image,
+                    ),
+                  fit: BoxFit.cover,
                 ),
               ),
               Positioned(
@@ -51,9 +74,9 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      const Text(
-                        "Rick Sanchez",
-                        style: TextStyle(
+                      Text(
+                        characterModel.name,
+                        style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.bold,
                           fontSize: 24.0
@@ -83,14 +106,14 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   const SizedBox(height: 3.0),
                                   Row(
                                     children: <Widget>[
-                                      const Icon(
+                                      Icon(
                                         CupertinoIcons.circle_fill,
                                         size: 10.0,
-                                        color: Color(0xFF2ECC71),
+                                        color: _statusColor(characterModel.status.toShortString()),
                                       ),
                                       const SizedBox(width: 5.0),
                                       Text(
-                                        "Vivo",
+                                        characterModel.status.toShortString(),
                                         style: TextStyle(
                                           color: Colors.black.withOpacity(0.9),
                                           fontWeight: FontWeight.w500,
@@ -124,7 +147,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   ),
                                   const SizedBox(height: 3.0),
                                   Text(
-                                    "Humano",
+                                    characterModel.species.toShortString(),
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.9),
                                       fontWeight: FontWeight.w500,
@@ -147,7 +170,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget>[
                                   Text(
-                                    "Genero",
+                                    "Género",
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.5),
                                       fontWeight: FontWeight.w500,
@@ -156,7 +179,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   ),
                                   const SizedBox(height: 3.0),
                                   Text(
-                                    "Masculino",
+                                    characterModel.gender.toShortString(),
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.9),
                                       fontWeight: FontWeight.w500,
@@ -179,33 +202,11 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 12.32),
-                      // Row(
-                      //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //   children: <Widget>[
-                      //     Text(
-                      //       "Tipo",
-                      //       style: TextStyle(
-                      //         color: Colors.black.withOpacity(0.5),
-                      //         fontWeight: FontWeight.w500,
-                      //         fontSize: 12.0
-                      //       ),
-                      //     ),
-                      //     Text(
-                      //       "Desconocido",
-                      //       style: TextStyle(
-                      //         color: Colors.black.withOpacity(0.9),
-                      //         fontWeight: FontWeight.w600,
-                      //         fontSize: 16.0
-                      //       ),
-                      //     ),
-                      //   ],
-                      // ),
-                      // const SizedBox(height: 12.32),
-                      Row(
+                      characterModel.type.isEmpty ? const SizedBox() : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Text(
-                            "Primer capítulo de aparición",
+                            "Tipo",
                             style: TextStyle(
                               color: Colors.black.withOpacity(0.5),
                               fontWeight: FontWeight.w500,
@@ -213,7 +214,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                             ),
                           ),
                           Text(
-                            "Buscando las Semillas",
+                            characterModel.type,
                             style: TextStyle(
                               color: Colors.black.withOpacity(0.9),
                               fontWeight: FontWeight.w600,
@@ -221,29 +222,14 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                             ),
                           ),
                         ],
+                      ),
+                      characterModel.type.isEmpty ? const SizedBox() : const SizedBox(height: 12.32),
+                      ChangeNotifierProvider(
+                        create: (_) => DebutService(characterModel.episode[0]),
+                        child: _Debut(),
                       ),
                       const SizedBox(height: 12.32),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Text(
-                            "Locación",
-                            style: TextStyle(
-                              color: Colors.black.withOpacity(0.5),
-                              fontWeight: FontWeight.w500,
-                              fontSize: 12.0
-                            ),
-                          ),
-                          Text(
-                            "Tierra",
-                            style: TextStyle(
-                              color: Colors.black.withOpacity(0.9),
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16.0
-                            ),
-                          ),
-                        ],
-                      ),
+                      _Location(),
                       const SizedBox(height: 20.09),
                       GestureDetector(
                         onTap: () => _setFavorite(),
@@ -254,7 +240,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                                 decoration: BoxDecoration(
-                                  color: isFavorite ? const Color(0xFF2ECC71) : Colors.white,
+                                  color: homeData.favorite['favorites'].contains(characterModel.id) ? const Color(0xFF2ECC71) : Colors.white,
                                   borderRadius: BorderRadius.circular(16.0),
                                   border: Border.all(
                                     width: 2.0,
@@ -265,15 +251,16 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Icon(
-                                      isFavorite ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                                      homeData.favorite['favorites'].contains(characterModel.id) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
                                       size: 20.0,
-                                      color: isFavorite ? Colors.white : const Color(0xFF2ECC71),
+                                      color: homeData.favorite['favorites'].contains(characterModel.id) ? Colors.white : const Color(0xFF2ECC71),
+                                      // color: Color(0xFF2ECC71),
                                     ),
                                     const SizedBox(width: 14.0),
                                     Text(
                                       "Añadir a favoritos",
                                       style: TextStyle(
-                                        color: isFavorite ? Colors.white : const Color(0xFF2ECC71),
+                                        color: homeData.favorite['favorites'].contains(characterModel.id) ? Colors.white : const Color(0xFF2ECC71),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16.0
                                       ),
@@ -296,9 +283,97 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
     );
   }
 
+  _statusColor(status) {
+    if(status == "Vivo") {
+      return const Color(0xFF2ECC71);
+    } else if(status == "Muerto") {
+      return Colors.red;
+    } else {
+      return Colors.grey;
+    }
+  }
+
   _setFavorite() {
-    setState(() {
-      isFavorite = !isFavorite;
-    });
+
+    final characterServices = Provider.of<CharacterService>(context, listen: false);
+    final homeData = Provider.of<HomeDataProvider>(context, listen: false);
+
+    final idSelected = homeData.idSelected;
+
+    final ResultCharacter characterModel = characterServices.res[1][idSelected];
+
+    homeData.favorites = characterModel.id;
+
+  }
+}
+
+class _Location extends StatelessWidget {
+  const _Location({ Key? key }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final characterServices = Provider.of<CharacterService>(context);
+    final homeData = Provider.of<HomeDataProvider>(context);
+    final int idSelected = homeData.idSelected;
+    ResultCharacter characterModel = characterServices.res[1][idSelected];
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          "Locación",
+          style: TextStyle(
+            color: Colors.black.withOpacity(0.5),
+            fontWeight: FontWeight.w500,
+            fontSize: 12.0
+          ),
+        ),
+        Text(
+          characterModel.origin.name,
+          style: TextStyle(
+            color: Colors.black.withOpacity(0.9),
+            fontWeight: FontWeight.w600,
+            fontSize: 16.0
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Debut extends StatelessWidget {
+  
+  @override
+  Widget build(BuildContext context) {
+
+    final debutModel = Provider.of<DebutService>(context);
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        Text(
+          "Debut",
+          style: TextStyle(
+            color: Colors.black.withOpacity(0.5),
+            fontWeight: FontWeight.w500,
+            fontSize: 12.0
+          ),
+        ),
+        Consumer<DebutService>(
+          builder: (context, debutService, child) {
+            // iss.setLocationUrl('');
+            
+            return Text(
+              debutService.isLoading ? "Cargando" : debutService.res.name,
+              style: TextStyle(
+                color: Colors.black.withOpacity(0.9),
+                fontWeight: FontWeight.w600,
+                fontSize: 16.0
+              ),
+            );
+          }
+        ),
+      ],
+    );
   }
 }
