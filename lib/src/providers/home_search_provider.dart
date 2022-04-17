@@ -5,19 +5,19 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeDataProvider extends ChangeNotifier {
   GlobalKey<FormState> formKey = GlobalKey();
-  String _search = '';
   int _idSelected = 0;
   int _characterOpen = 0;
   Map<String, dynamic> favorite = {
     "favorites" : []
   };
+  List<dynamic> _resSearch = [];
 
-  set search(String value) {
-    _search = value;
+  set resSearch(List<dynamic> resSearch) {
+    _resSearch = resSearch;
     notifyListeners();
   }
 
-  String get search => _search;
+  List<dynamic> get resSearch => _resSearch; 
 
   set idSelected(int id) {
     _idSelected = id-1;
@@ -51,21 +51,28 @@ class HomeDataProvider extends ChangeNotifier {
     SharedPreferences preferences = await SharedPreferences.getInstance();
 
     mapString = preferences.getString("favorite") ?? {"favorites":[]}.toString();
+    
+    try {
 
-    Map<String, dynamic> result = json.decode(mapString);
+      Map<String, dynamic> result = json.decode(mapString);
 
-    favorite = result;
+      favorite = result;
 
-    return result;
+      return result;
+
+    } catch (e) {
+
+      favorite = {
+        "favorites" : []
+      };
+
+      return favorite;
+    }
 
   }
 
   void setFavoriteCache(Map<String, dynamic> favorite) async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     await preferences.setString("favorite", json.encode(favorite));
-  }
-
-  isValidForm() {
-    print("$_search ====> Busqueda");
   }
 }

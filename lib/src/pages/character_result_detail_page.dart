@@ -1,37 +1,34 @@
 import 'package:RickyMortyApp/src/models/character_model.dart';
 import 'package:RickyMortyApp/src/providers/home_search_provider.dart';
-import 'package:RickyMortyApp/src/services/characters_service.dart';
 import 'package:RickyMortyApp/src/services/debut_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:skeleton_text/skeleton_text.dart';
 
-class CharacterDetailPage extends StatefulWidget {
-  const CharacterDetailPage({ Key? key }) : super(key: key);
+class CharacterResultDetailPage extends StatefulWidget {
+  final ResultCharacter resultCharacter;
+  const CharacterResultDetailPage({ Key? key, required this.resultCharacter}) : super(key: key);
 
   @override
-  State<CharacterDetailPage> createState() => _CharacterDetailPageState();
+  State<CharacterResultDetailPage> createState() => _CharacterResultDetailPage();
 }
 
-class _CharacterDetailPageState extends State<CharacterDetailPage> {
+class _CharacterResultDetailPage extends State<CharacterResultDetailPage> {
+
+  late ResultCharacter resultCharacter;
 
   bool isFavorite = false;
   @override
   initState() {
     super.initState();
 
+    resultCharacter = widget.resultCharacter;
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final characterServices = Provider.of<CharacterService>(context);
     final homeData = Provider.of<HomeDataProvider>(context);
-    final int idSelected = homeData.idSelected;
-   
-    ResultCharacter characterModel = characterServices.res[1][idSelected];
-
     return Scaffold(
       body: SafeArea(
         child: SizedBox(
@@ -45,7 +42,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                 child: FittedBox(
                   child: FadeInImage.assetNetwork(
                       placeholder: "assets/loading.gif",
-                      image: characterModel.image,
+                      image: resultCharacter.image,
                     ),
                   fit: BoxFit.cover,
                 ),
@@ -77,7 +74,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
                       Text(
-                        characterModel.name,
+                        resultCharacter.name,
                         style: const TextStyle(
                           color: Colors.black87,
                           fontWeight: FontWeight.bold,
@@ -111,11 +108,11 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                       Icon(
                                         CupertinoIcons.circle_fill,
                                         size: 10.0,
-                                        color: _statusColor(characterModel.status.toShortString()),
+                                        color: _statusColor(resultCharacter.status.toShortString()),
                                       ),
                                       const SizedBox(width: 5.0),
                                       Text(
-                                        characterModel.status.toShortString(),
+                                        resultCharacter.status.toShortString(),
                                         style: TextStyle(
                                           color: Colors.black.withOpacity(0.9),
                                           fontWeight: FontWeight.w500,
@@ -149,7 +146,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   ),
                                   const SizedBox(height: 3.0),
                                   Text(
-                                    characterModel.species.toShortString(),
+                                    resultCharacter.species.toShortString(),
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.9),
                                       fontWeight: FontWeight.w500,
@@ -181,7 +178,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   ),
                                   const SizedBox(height: 3.0),
                                   Text(
-                                    characterModel.gender.toShortString(),
+                                    resultCharacter.gender.toShortString(),
                                     style: TextStyle(
                                       color: Colors.black.withOpacity(0.9),
                                       fontWeight: FontWeight.w500,
@@ -204,7 +201,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                         ),
                       ),
                       const SizedBox(height: 12.32),
-                      characterModel.type.isEmpty ? const SizedBox() : Row(
+                      resultCharacter.type.isEmpty ? const SizedBox() : Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
                           Text(
@@ -216,7 +213,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                             ),
                           ),
                           Text(
-                            characterModel.type,
+                            resultCharacter.type,
                             style: TextStyle(
                               color: Colors.black.withOpacity(0.9),
                               fontWeight: FontWeight.w600,
@@ -225,14 +222,14 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                           ),
                         ],
                       ),
-                      characterModel.type.isEmpty ? const SizedBox() : const SizedBox(height: 12.32),
+                      resultCharacter.type.isEmpty ? const SizedBox() : const SizedBox(height: 12.32),
                       ChangeNotifierProvider(
-                        create: (_) => DebutService(characterModel.episode[0]),
+                        create: (_) => DebutService(resultCharacter.episode[0]),
                         child: _Debut(),
                       ),
                       const SizedBox(height: 12.32),
-                      characterModel.origin.name == "unknown" ? const SizedBox() :
-                      const _Location(),
+                      resultCharacter.origin.name == "unknown" ? const SizedBox() :
+                      _Location(resultCharacter: resultCharacter,),
                       const SizedBox(height: 20.09),
                       GestureDetector(
                         onTap: () => _setFavorite(),
@@ -243,7 +240,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                               child: Container(
                                 padding: const EdgeInsets.symmetric(vertical: 16.0),
                                 decoration: BoxDecoration(
-                                  color: homeData.favorite['favorites'].contains(characterModel.id) ? const Color(0xFF2ECC71) : Colors.white,
+                                  color: homeData.favorite['favorites'].contains(resultCharacter.id) ? const Color(0xFF2ECC71) : Colors.white,
                                   borderRadius: BorderRadius.circular(16.0),
                                   border: Border.all(
                                     width: 2.0,
@@ -254,16 +251,16 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: <Widget>[
                                     Icon(
-                                      homeData.favorite['favorites'].contains(characterModel.id) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
+                                      homeData.favorite['favorites'].contains(resultCharacter.id) ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
                                       size: 20.0,
-                                      color: homeData.favorite['favorites'].contains(characterModel.id) ? Colors.white : const Color(0xFF2ECC71),
+                                      color: homeData.favorite['favorites'].contains(resultCharacter.id) ? Colors.white : const Color(0xFF2ECC71),
                                       // color: Color(0xFF2ECC71),
                                     ),
                                     const SizedBox(width: 14.0),
                                     Text(
                                       "Añadir a favoritos",
                                       style: TextStyle(
-                                        color: homeData.favorite['favorites'].contains(characterModel.id) ? Colors.white : const Color(0xFF2ECC71),
+                                        color: homeData.favorite['favorites'].contains(resultCharacter.id) ? Colors.white : const Color(0xFF2ECC71),
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16.0
                                       ),
@@ -297,28 +294,21 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
   }
 
   _setFavorite() {
-
-    final characterServices = Provider.of<CharacterService>(context, listen: false);
+    
     final homeData = Provider.of<HomeDataProvider>(context, listen: false);
 
-    final idSelected = homeData.idSelected;
-
-    final ResultCharacter characterModel = characterServices.res[1][idSelected];
-
-    homeData.favorites = characterModel.id;
+    homeData.favorites = resultCharacter.id;
 
   }
 }
 
 class _Location extends StatelessWidget {
-  const _Location({ Key? key }) : super(key: key);
+  final ResultCharacter resultCharacter;
+  const _Location({ Key? key, required this.resultCharacter}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final characterServices = Provider.of<CharacterService>(context);
-    final homeData = Provider.of<HomeDataProvider>(context);
-    final int idSelected = homeData.idSelected;
-    ResultCharacter characterModel = characterServices.res[1][idSelected];
+    
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -332,7 +322,7 @@ class _Location extends StatelessWidget {
           ),
         ),
         Text(
-          characterModel.origin.name,
+          resultCharacter.origin.name,
           style: TextStyle(
             color: Colors.black.withOpacity(0.9),
             fontWeight: FontWeight.w600,

@@ -1,16 +1,15 @@
-// ignore_for_file: avoid_print
-
 import 'dart:collection';
 
 import 'package:RickyMortyApp/src/models/character_model.dart';
+import 'package:RickyMortyApp/src/pages/result_search_page.dart';
 import 'package:RickyMortyApp/src/providers/home_search_provider.dart';
 import 'package:RickyMortyApp/src/services/characters_service.dart';
-import 'package:RickyMortyApp/src/services/search_service.dart';
 import 'package:RickyMortyApp/src/widgets/character_card_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:skeleton_text/skeleton_text.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({ Key? key }) : super(key: key);
@@ -52,7 +51,6 @@ class _HomePageState extends State<HomePage> {
                     ),
                     // const _Title(),
                     const SizedBox(height: 12.0),
-
                     ChangeNotifierProvider(
                       create: (_) => HomeDataProvider(),
                       child: _Search()
@@ -72,13 +70,16 @@ class _HomePageState extends State<HomePage> {
                         itemBuilder: (BuildContext context, int index) {
                           return Column(
                             children: [
-                              Container(
-                                height: 221,
-                                width: 156,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.3),
-                                  borderRadius: BorderRadius.circular(24.0)
-                                )
+                              SkeletonAnimation(
+                                borderRadius: BorderRadius.circular(15.0),
+                                shimmerColor: Colors.grey.withOpacity(0.2),
+                                child: Container(
+                                  height: 221,
+                                  width: 221,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(15.0),
+                                      color: Colors.grey.withOpacity(0.3)),
+                                ),
                               ),
                               const SizedBox(height: 1.0)
                             ],
@@ -108,37 +109,37 @@ class _HomePageState extends State<HomePage> {
                             }
                           );
                         } else {
-                          return Container(
-                            // height:200,
-                            child: GridView.builder(
-                              physics: const BouncingScrollPhysics(),
-                              shrinkWrap: true,
-                              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisSpacing: MediaQuery.of(context).size.width * 0.1,
-                                crossAxisCount: 2,
-                                childAspectRatio: 0.63,
-                              ),
-                              itemCount: 8,
-                              itemBuilder: (BuildContext context, int index) {
-                                return Column(
-                                  children: [
-                                    Container(
+                          return GridView.builder(
+                            physics: const BouncingScrollPhysics(),
+                            shrinkWrap: true,
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisSpacing: MediaQuery.of(context).size.width * 0.1,
+                              crossAxisCount: 2,
+                              childAspectRatio: 0.63,
+                            ),
+                            itemCount: 8,
+                            itemBuilder: (BuildContext context, int index) {
+                              return Column(
+                                children: [
+                                  SkeletonAnimation(
+                                    borderRadius: BorderRadius.circular(15.0),
+                                    shimmerColor: Colors.grey.withOpacity(0.2),
+                                    child: Container(
                                       height: 221,
-                                      width: 156,
+                                      width: 221,
                                       decoration: BoxDecoration(
-                                        color: Colors.grey.withOpacity(0.3),
-                                        borderRadius: BorderRadius.circular(24.0)
-                                      )
+                                          borderRadius: BorderRadius.circular(15.0),
+                                          color: Colors.grey.withOpacity(0.3)),
                                     ),
-                                    const SizedBox(height: 1.0)
-                                  ],
-                                );
-                              }),
+                                  ),
+                                  const SizedBox(height: 1.0)
+                                ],
+                              );
+                            }
                           );
                         }
                       }
                     ),
-
                   ],
                 ),
               ),
@@ -148,10 +149,12 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  _goToCharacterDetail(int id) {
+  _goToCharacterDetail(BuildContext context, ResultCharacter resultCharacter) {
     final homeData = Provider.of<HomeDataProvider>(context, listen: false);
 
-    homeData.idSelected = id;
+    homeData.idSelected = resultCharacter.id;
+
+    FocusScope.of(context).unfocus();
 
     Navigator.pushNamed(context, "CharacterDetail");
   }
@@ -187,6 +190,8 @@ class _Title extends StatelessWidget {
 
 class _Search extends StatelessWidget {
 
+  final TextEditingController _searchController  = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
 
@@ -201,8 +206,9 @@ class _Search extends StatelessWidget {
       padding: const EdgeInsets.only(left: 10.0, right: 10.0),
       child: Column(
         children: [
-          Form(child:
-            TextFormField(
+          Form(
+            key: searchForm.formKey,
+            child: TextFormField(
               autocorrect: false,
               decoration: InputDecoration(
               border: InputBorder.none,
@@ -213,22 +219,27 @@ class _Search extends StatelessWidget {
               prefixIcon: IconButton(
                 icon: const Icon(Icons.search),
                 onPressed: () {
-                  searchForm.isValidForm();
-                  // if para ir o no ir a la vista de resultados
-                  // _goToResultSearch(context);
-                  final searchService = Provider.of<SearchService>(context, listen: false);
-                  searchService.searchCharacter(searchForm.search);
+                  FocusScope.of(context).unfocus();
+                  if(_searchController.text.trim().isEmpty) {
+                    showSnackBar(context, "Debes ingresar un nombre");
+                  } else  if (!RegExp(r"^[a-zA-Z]+$").hasMatch(_searchController.text.trim())) {
+                    showSnackBar(context, "No puedes ingresar caracteres especiales");
+                  } else {
+                    _goToResultSearch(context);
+                  }
                 },
                 ),
               ),
-              onChanged: (value)  {
-                searchForm.search = value;
-                searchForm.isValidForm();
-              },
+              controller: _searchController,
               onEditingComplete: () {
                 FocusScope.of(context).unfocus();
-                // if para ir o no ir a la vista de resultados
-                _goToResultSearch(context);
+                if(_searchController.text.trim().isEmpty) {
+                  showSnackBar(context, "Debes ingresar un nombre");
+                } else  if (!RegExp(r"^[a-zA-Z]+$").hasMatch(_searchController.text.trim())) {
+                  showSnackBar(context, "No puedes ingresar caracteres especiales");
+                } else {
+                  _goToResultSearch(context);
+                }
               },
             ),
           ),
@@ -237,7 +248,19 @@ class _Search extends StatelessWidget {
     );
   }
 
+  void showSnackBar(BuildContext context, String text) {
+    final snackBar = SnackBar(
+      content: Text(text, style: const TextStyle(fontSize: 14.0)),
+    );
+
+    ScaffoldMessenger.of(context)
+      ..removeCurrentSnackBar()
+      ..showSnackBar(snackBar);
+  }
+
   void _goToResultSearch(BuildContext context) {
-    Navigator.pushNamed(context, "ResultSearch");
+
+    Navigator.of(context).push(CupertinoPageRoute(
+          builder: (context) =>  ResultSearchPage(search: _searchController.text.trim().toLowerCase())));
   }
 }

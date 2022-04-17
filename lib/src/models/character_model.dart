@@ -1,6 +1,3 @@
-import 'dart:ui';
-
-import 'package:meta/meta.dart';
 import 'dart:convert';
 
 class CharacterModel {
@@ -30,8 +27,8 @@ class Info {
 
     int count;
     int pages;
-    String next;
-    dynamic prev;
+    String? next;
+    dynamic? prev;
 
     factory Info.fromJson(String str) => Info.fromMap(json.decode(str));
 
@@ -87,7 +84,8 @@ class ResultCharacter {
 
     String toJson() => json.encode(toMap());
 
-    factory ResultCharacter.fromMap(Map<String, dynamic> json) => ResultCharacter(
+    factory ResultCharacter.fromMap(Map<String, dynamic> json) {
+      return ResultCharacter(
         id: json["id"],
         name: json["name"],
         status: statusValues.map[json["status"]]!,
@@ -100,7 +98,8 @@ class ResultCharacter {
         episode: List<String>.from(json["episode"].map((x) => x)),
         url: json["url"],
         created: DateTime.parse(json["created"]),
-    );
+      );
+    }
 
     Map<String, dynamic> toMap() => {
         "id": id,
@@ -162,19 +161,29 @@ class Location {
     };
 }
 
-enum Species { HUMAN, ALIEN, UNKNOWN, HUMANOID }
+enum Species { HUMAN, UNKNOWN, ALIEN, HUMANOID, POOPYBYTTHOLE, Mythological_Creature }
 
 final speciesValues = EnumValues({
     "Alien": Species.ALIEN,
     "Human": Species.HUMAN,
     "unknown": Species.UNKNOWN,
-    "Humanoid": Species.HUMANOID
+    "Humanoid" : Species.HUMANOID,
+    "Poopybutthole" : Species.POOPYBYTTHOLE,
+    "Mythological Creature" : Species.Mythological_Creature
 });
 
 extension ParseToStringSpecies on Species {
   String toShortString() {
     if(toString().split('.').last == "HUMAN") {
       return "Humano";
+    } else if (toString().split('.').last == "HUMANOID") {
+      return "Humanoide";
+    } else if (toString().split('.').last == "UNKNOWN") {
+      return "Desconocido";
+    } else if (toString().split('.').last == "Poopybutthole") {
+      return "Poopybutthole";
+    } else if (toString().split('.').last == "Mythological Creature") {
+      return "Mythological Creature";
     } else {
       return "Alien";
     }
@@ -208,9 +217,7 @@ class EnumValues<T> {
     EnumValues(this.map);
 
     Map<T, String> get reverse {
-        if (reverseMap == null) {
-            reverseMap = map.map((k, v) => new MapEntry(v, k));
-        }
+        reverseMap ??= map.map((k, v) => MapEntry(v, k));
         return reverseMap!;
     }
 }

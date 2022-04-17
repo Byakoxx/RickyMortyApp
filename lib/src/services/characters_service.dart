@@ -1,9 +1,6 @@
 import 'package:RickyMortyApp/src/models/character_model.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-
-import '../constans.dart';
-
 class CharacterService extends ChangeNotifier {
   static final Dio _dio = Dio();
   List<dynamic> res = [];
@@ -20,7 +17,7 @@ class CharacterService extends ChangeNotifier {
     notifyListeners();
     
     try {
-      var response = await _dio.get('${Constants.baseURL}${Constants.character}');
+      var response = await _dio.get('https://rickandmortyapi.com/api/character');
 
       Info info = Info.fromMap(response.data['info']);
 

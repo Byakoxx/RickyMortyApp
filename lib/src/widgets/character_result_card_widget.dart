@@ -2,17 +2,16 @@ import 'package:RickyMortyApp/src/models/character_model.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-class CharacterCardWidget extends StatelessWidget {
-  final bool isFavorite;
+class CharacterResultCardWidget extends StatelessWidget {
   final Function goToCharacterDetail;
   final ResultCharacter characterModel;
 
-  const CharacterCardWidget({ Key? key, required this.goToCharacterDetail, required this.characterModel, required this.isFavorite }) : super(key: key);
+  const CharacterResultCardWidget({ Key? key, required this.goToCharacterDetail, required this.characterModel, }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () => goToCharacterDetail(context, characterModel),
+      onTap: () => goToCharacterDetail(characterModel.id, context, characterModel),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -31,27 +30,6 @@ class CharacterCardWidget extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                 ),
-              ),
-              Positioned(
-                top: 8,
-                right: 8,
-                child: Container(
-                  width: 30,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: isFavorite ? const Color(0xFF2ECC71) : Colors.grey,
-                    // color: Colors.grey,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Center(
-                    child: Icon(
-                      isFavorite ? CupertinoIcons.heart_fill : CupertinoIcons.heart,
-                      // CupertinoIcons.heart,
-                      size: 18.0, 
-                      color: Colors.white
-                    )
-                  )
-                ), 
               ),
             ],
           ),
