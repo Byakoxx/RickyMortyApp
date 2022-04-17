@@ -1,5 +1,6 @@
 import 'package:RickyMortyApp/src/pages/character_detail_page.dart';
 import 'package:RickyMortyApp/src/pages/home_page.dart';
+import 'package:RickyMortyApp/src/pages/splash_screen_page.dart';
 import 'package:RickyMortyApp/src/providers/home_search_provider.dart';
 import 'package:RickyMortyApp/src/services/characters_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,9 +39,12 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: Colors.white 
       ),
       home: const HomePage(),
-      initialRoute: "Home", 
+      initialRoute: "Splash", 
       onGenerateRoute: (RouteSettings settings) {
         switch (settings.name) {
+          case 'Splash':
+            return CupertinoPageRoute(
+                builder: (_) => SplashApp(), settings: settings);
           case 'Home':
             return CupertinoPageRoute(
                 builder: (_) => const HomePage(), settings: settings);

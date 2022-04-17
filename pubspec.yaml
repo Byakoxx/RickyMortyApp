@@ -17,6 +17,7 @@ dependencies:
   cached_network_image: ^3.2.0
   shared_preferences: ^2.0.6
   skeleton_text: ^3.0.0
+  splash_screen_view: ^3.0.0
 
 dev_dependencies:
   flutter_test:
@@ -31,7 +32,7 @@ flutter:
   assets:
     - assets/loading.gif
     - assets/rick-sad.gif
-  #   - images/a_dot_ham.jpeg
+    - assets/Rick&Morty.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
