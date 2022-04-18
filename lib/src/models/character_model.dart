@@ -28,7 +28,7 @@ class Info {
     int count;
     int pages;
     String? next;
-    dynamic? prev;
+    String? prev;
 
     factory Info.fromJson(String str) => Info.fromMap(json.decode(str));
 
@@ -37,8 +37,8 @@ class Info {
     factory Info.fromMap(Map<String, dynamic> json) => Info(
         count: json["count"],
         pages: json["pages"],
-        next: json["next"],
-        prev: json["prev"],
+        next: json["next"] ?? '',
+        prev: json["prev"] ?? '',
     );
 
     Map<String, dynamic> toMap() => {
@@ -143,8 +143,8 @@ class Location {
         required this.url,
     });
 
-    String name;
-    String url;
+    String? name;
+    String? url;
 
     factory Location.fromJson(String str) => Location.fromMap(json.decode(str));
 
@@ -161,7 +161,7 @@ class Location {
     };
 }
 
-enum Species { HUMAN, UNKNOWN, ALIEN, HUMANOID, POOPYBYTTHOLE, Mythological_Creature }
+enum Species { HUMAN, UNKNOWN, ALIEN, HUMANOID, POOPYBYTTHOLE, Mythological_Creature, CRONENBERG, ROBOT, ANIMAL }
 
 final speciesValues = EnumValues({
     "Alien": Species.ALIEN,
@@ -169,7 +169,10 @@ final speciesValues = EnumValues({
     "unknown": Species.UNKNOWN,
     "Humanoid" : Species.HUMANOID,
     "Poopybutthole" : Species.POOPYBYTTHOLE,
-    "Mythological Creature" : Species.Mythological_Creature
+    "Mythological Creature" : Species.Mythological_Creature,
+    "Cronenberg" : Species.CRONENBERG,
+    "Robot": Species.ROBOT,
+    "Animal": Species.ANIMAL
 });
 
 extension ParseToStringSpecies on Species {
@@ -184,6 +187,12 @@ extension ParseToStringSpecies on Species {
       return "Poopybutthole";
     } else if (toString().split('.').last == "Mythological Creature") {
       return "Mythological Creature";
+    } else if (toString().split('.').last == "Cronenberg") {
+      return "Cronenberg";
+    } else if (toString().split('.').last == "Robot") {
+      return "Robot";
+    } else if (toString().split('.').last == "Animal") {
+      return "Animal";
     } else {
       return "Alien";
     }
@@ -209,7 +218,6 @@ extension ParseToStringStatus on Status {
     }
   }
 }
-
 class EnumValues<T> {
     Map<String, T> map;
     Map<T, String>? reverseMap;

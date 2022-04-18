@@ -261,7 +261,7 @@ class _CharacterDetailPageState extends State<CharacterDetailPage> {
                                     ),
                                     const SizedBox(width: 14.0),
                                     Text(
-                                      "Añadir a favoritos",
+                                      homeData.favorite['favorites'].contains(characterModel.id) ? "Añadido a favoritos" : "Añadir a favoritos",
                                       style: TextStyle(
                                         color: homeData.favorite['favorites'].contains(characterModel.id) ? Colors.white : const Color(0xFF2ECC71),
                                         fontWeight: FontWeight.bold,
@@ -332,7 +332,7 @@ class _Location extends StatelessWidget {
           ),
         ),
         Text(
-          characterModel.origin.name,
+          characterModel.origin.name ?? "Desconocido",
           style: TextStyle(
             color: Colors.black.withOpacity(0.9),
             fontWeight: FontWeight.w600,

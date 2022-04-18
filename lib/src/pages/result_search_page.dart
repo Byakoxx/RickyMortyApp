@@ -146,7 +146,7 @@ class Result extends StatelessWidget {
           children: <Widget>[
             const SizedBox(height: 20.0),
             const Text(
-              'No hay resultados para esta busqueda',
+              'No hay resultados para esta búsqueda',
               style: TextStyle(
                 color: Colors.black87,
                 fontWeight: FontWeight.w300,
